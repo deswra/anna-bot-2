@@ -41,7 +41,7 @@ module.exports.run = async (anna, message, args) => {
   const response = new Discord.RichEmbed()
     .setColor('#7e6ca8')
     .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
-    .setTitle(`*(updated ${borders.updatedAt})*`)
+    .setTitle(`High Score Ranking *(updated ${borders.updatedAt})*`)
     .setFooter(`${borders.timeLeft} till the event ends.`);
   for (let i = 0; i < borders.borders.length; i++) {
     response.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`, true);
