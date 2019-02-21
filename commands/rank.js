@@ -23,10 +23,12 @@ async function getRank() {
   const loungeLog = await response.json();
   const loungeRank = await loungeLog[loungeLog.length - 1];
   const lastLoungeRank = await loungeLog[loungeLog.length - 2];
+  const rankIncrease = await parseInt(loungeRank.rank - lastLoungeRank.rank);
   return {
     eventName: event.name,
     rank: loungeRank.rank,
     score: parseInt(loungeRank.score),
+    rankIncrease: (rankIncrease > 0) ? `${rankIncrease}▼` : `${Math.abs(rankIncrease)}▲`,
     increase: parseInt(loungeRank.score - lastLoungeRank.score),
     updatedAt: moment(loungeRank.summaryTime).fromNow(),
     timeLeft: moment(event.schedule.endDate).fromNow(true)
@@ -38,7 +40,7 @@ module.exports.run = async (anna, message, args) => {
   await rank;
   const response = new Discord.RichEmbed()
     .setAuthor(rank.eventName)
-    .addField('Rank', rank.rank, true)
+    .addField('Rank', `${rank.rank} (${rank.rankIncrease})` , true)
     .addField('Score', `${rank.score} (+${rank.increase})`, true)
     .addField('Last updated', rank.updatedAt, false)
     .setFooter(`${rank.timeLeft} till the event ends.`);
