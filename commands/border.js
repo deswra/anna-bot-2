@@ -13,7 +13,6 @@ async function getCurrentEvent() {
 async function getBorder() {
   let response = {};
   const currentEvent = await getCurrentEvent();
-  response.id = currentEvent.id;
   response.eventName = currentEvent.name;
   response.timeLeft = moment(currentEvent.schedule.endDate).fromNow(true);
   let count = 0;
@@ -43,7 +42,6 @@ module.exports.run = async (anna, message, args) => {
     .setColor('#7e6ca8')
     .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
     .setTitle(`Event Points Ranking *(updated ${borders.updatedAt})*`)
-    .setImage(`https://storage.matsurihi.me/mltd/event_bg/00${borders.id}.png`)
     .setFooter(`${borders.timeLeft} till the event ends.`);
   for (let i = 0; i < borders.borders.length; i++) {
     response.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`, true);
