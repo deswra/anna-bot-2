@@ -1,1 +1,1 @@
-anna-bot-2
+A Discord bot.
