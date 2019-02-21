@@ -43,7 +43,7 @@ module.exports.run = async (anna, message, args) => {
     .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
     .setFooter(`${borders.timeLeft} till the event ends.`);
   for (let i = 0; i < borders.borders.length; i++) {
-    response.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`);
+    response.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`, true);
   }
   response.addField('Last updated', borders.updatedAt, false);
   return message.channel.send(response);
