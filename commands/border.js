@@ -12,57 +12,41 @@ async function getCurrentEvent() {
 
 async function getBorder() {
   let response = {};
-  getCurrentEvent().then(currEvt => {
-    response.eventName = currEvt.name;
-    response.timeLeft = moment(currEvt.schedule.endDate).fromNow(true);
-    let count = 0;
-    fetch(`https://api.matsurihi.me/mltd/v1/events/${currEvt.id}/rankings/summaries/eventPoint?prettyPrint=false`)
-      .then(res => res.json())
-      .then(res => {
-        const playersNum = parseInt(res[res.length - 1].count);
-        response.updatedAt = moment(res[res.length - 1].summaryTime).fromNow();
-        fetch(`https://api.matsurihi.me/mltd/v1/events/${currEvt.id}/rankings/logs/eventPoint/100,2500,5000,10000,25000,50000,100000?prettyPrint=false`)
-          .then(res => res.json())
-          .then(res => {
-            let borders = [];
-            while (playersNum >= tier[count]) {
-              borders.push(res[count].data[res[count].data.length - 1].score);
-              count++;
-            }
-            response.borders = borders;
-            return response;
-          })
-      })
-  })
+  const currentEvent = await getCurrentEvent();
+  response.eventName = currentEvent.name;
+  response.timeLeft = moment(currentEvent.schedule.endDate).fromNow(true);
+  let count = 0;
+  const eventPtsSummaryRes = await fetch(`https://api.matsurihi.me/mltd/v1/events/${currentEvent.id}/rankings/summaries/eventPoint?prettyPrint=false`);
+  const eventPtsSummary = await eventPtsSummaryRes.json();
+  const playersNum = eventPtsSummary[eventPtsSummary.length - 1].count;
+  response.updatedAt = moment(eventPtsSummary[eventPtsSummary.length - 1].summaryTime).fromNow();
+  const bordersSummaryRes = await fetch(`https://api.matsurihi.me/mltd/v1/events/${currentEvent.id}/rankings/logs/eventPoint/100,2500,5000,10000,25000,50000,100000?prettyPrint=false`);
+  const bordersSummary = await bordersSummaryRes.json();
+  let borders = [];
+  while (playersNum >= tier[count]) {
+    let border = bordersSummary[count].data[bordersSummary[count].data.length - 1].score;
+    let increase = border - bordersSummary[count].data[bordersSummary[count].data.length - 2].score;
+    borders.push({
+      score: border,
+      increase: increase
+    });
+    count++;
+  }
+  response.borders = borders;
+  return response;
 }
 
 module.exports.run = async (anna, message, args) => {
-  let response = {};
-  getCurrentEvent().then(currEvt => {
-    response.eventName = currEvt.name;
-    response.timeLeft = moment(currEvt.schedule.endDate).fromNow(true);
-    let count = 0;
-    fetch(`https://api.matsurihi.me/mltd/v1/events/${currEvt.id}/rankings/summaries/eventPoint?prettyPrint=false`)
-      .then(res => res.json())
-      .then(res => {
-        const playersNum = parseInt(res[res.length - 1].count);
-        response.updatedAt = moment(res[res.length - 1].summaryTime).fromNow();
-        fetch(`https://api.matsurihi.me/mltd/v1/events/${currEvt.id}/rankings/logs/eventPoint/100,2500,5000,10000,25000,50000,100000?prettyPrint=false`)
-          .then(res => res.json())
-          .then(res => {
-            const embed = new Discord.RichEmbed()
-              .setColor('#7e6ca8')
-              .setAuthor(response.eventName, 'https://i.imgur.com/sPOlPsI.png')
-              .setFooter(`${response.timeLeft} till the event ends.`);
-            while (playersNum >= tier[count]) {
-              embed.addField(`T${tier[count]}`, `${res[count].data[res[count].data.length - 1].score} (+${res[count].data[res[count].data.length - 1].score-res[count].data[res[count].data.length - 2].score})`, true);
-              count++;
-            }
-            embed.addField('Last updated', response.updatedAt, false);
-            return message.channel.send(embed);
-          })
-      })
-  })
+  const borders = await getBorder();
+  const response = new Discord.RichEmbed()
+    .setColor('#7e6ca8')
+    .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
+    .setFooter(`${borders.timeLeft} till the event ends.`);
+  for (let i = 0; i < borders.borders.length; i++) {
+    embed.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`);
+  }
+  embed.addField('Last updated', response.updatedAt, false);
+  return message.channel.send(embed);
 }
 
 module.exports.help = {
