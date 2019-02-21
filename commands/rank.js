@@ -41,9 +41,9 @@ module.exports.run = async (anna, message, args) => {
   const response = new Discord.RichEmbed()
     .setColor('#7e6ca8')
     .setAuthor(rank.eventName, 'https://i.imgur.com/sPOlPsI.png')
+    .setTitle(`*(updated ${rank.updatedAt})*`)
     .addField('Rank', `${rank.rank} (${rank.rankIncrease})` , true)
     .addField('Score', `${rank.score} (+${rank.increase})`, true)
-    .addField('Last updated', rank.updatedAt, false)
     .setFooter(`${rank.timeLeft} till the event ends.`);
   return message.channel.send(response);
 }
