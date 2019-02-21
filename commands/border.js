@@ -50,5 +50,5 @@ module.exports.run = async (anna, message, args) => {
 }
 
 module.exports.help = {
-  name: 'rank'
+  name: 'border'
 }
