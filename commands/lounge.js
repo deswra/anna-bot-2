@@ -4,7 +4,7 @@ const moment = require('moment');
 const princess = require('../functions/princess');
 
 module.exports.run = async (anna, message, args) => {
-  if (!args.length) {
+  if (args.length) {
     const loungeName = args.join(' ');
     const searchResults = await princess.searchLounge(loungeName);
     const searchResult = await searchResults[0];
