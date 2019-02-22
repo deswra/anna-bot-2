@@ -3,7 +3,7 @@ const moment = require('moment');
 
 module.exports = {
   async searchLounge(name){
-    const response = await fetch(`https://api.matsurihi.me/mltd/v1/lounges/search?name=${name}`);
+    const response = await fetch(`https://api.matsurihi.me/mltd/v1/lounges/search?name=${encodeURI(name)}`);
     const resData = await response.json();
     return resData;
   },
