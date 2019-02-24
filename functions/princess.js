@@ -21,5 +21,10 @@ module.exports = {
     const response = await fetch(`https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/logs/loungePoint/${loungeId}?prettyPrint=false`);
     const resData = await response.json();
     return resData;
+  },
+  async getCurrentEvent(){
+    const response = await fetch('https://api.matsurihi.me/mltd/v1/events?prettyPrint=false');
+    const resData = await response.json();
+    return resData[resData.length - 1];
   }
 }
