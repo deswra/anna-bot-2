@@ -18,8 +18,7 @@ async function getLoungeId() {
 }
 
 async function getRank() {
-  const event = await princess.getCurrentEvent();
-  const lounge = await princess.getLoungeData(loungeId);
+  const [event, lounge] = await Promise.all([princess.getCurrentEvent(), princess.getLoungeData(loungeId)]);
   const loungeEvent = await princess.getLoungePoints(lounge.id,event.id);
   const loungeRank = loungeEvent[loungeEvent.length - 1].rank;
   const rankIncrease = loungeRank - loungeEvent[loungeEvent.length - 2].rank;
