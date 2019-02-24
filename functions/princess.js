@@ -1,5 +1,4 @@
 const fetch = require('node-fetch');
-const moment = require('moment');
 
 module.exports = {
   async searchLounge(name) {
@@ -23,16 +22,16 @@ module.exports = {
     return resData;
   },
   async getCurrentEvent() {
-    const response = await fetch('https://api.matsurihi.me/mltd/v1/events?prettyPrint=false');
-    const resData = await response.json();
-    return resData[resData.length - 1];
+    return fetch(`https://api.matsurihi.me/mltd/v1/events?at=${new Date()}?prettyPrint=false`)
+      .then(res => res.json())
+      .then(res => res[0]);
   },
   async getSummaryCounts(eventId, type) {
     return fetch(`https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/summaries/${type}?prettyPrint=false`)
       .then(res => res.json())
       .then(res => res[res.length - 1]);
   },
-  async getBorders(eventId, type, tiers){
+  async getBorders(eventId, type, tiers) {
     return fetch(`https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/logs/${type}/${tiers}?prettyPrint=false`)
       .then(res => res.json())
   }
