@@ -41,11 +41,11 @@ module.exports.run = async (anna, message, args) => {
   const rank = await getRank();
   const now = moment();
   let footer = '';
-  if (now < moment(res.event.schedule.boostBeginDate)){
-    let timeLeft = moment(res.event.schedule.boostBeginDate).fromNow(true);
+  if (now < moment(rank.event.schedule.boostBeginDate)){
+    let timeLeft = moment(rank.event.schedule.boostBeginDate).fromNow(true);
     footer = `${timeLeft} till multipliers are available.`;
   } else {
-    let timeLeft = moment(res.event.schedule.endDate).fromNow(true);
+    let timeLeft = moment(rank.event.schedule.endDate).fromNow(true);
     footer = `${timeLeft} till the event ends.`;
   }
   const response = new Discord.RichEmbed()
