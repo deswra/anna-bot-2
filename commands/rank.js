@@ -2,24 +2,16 @@ const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const moment = require('moment');
 const princess = require('../functions/princess');
+const { getRandomImg } = require('../resources/errors');
 
 const loungeId = 'UUQGEDQQ';
 
-async function getCurrentEvent() {
-  const response = await fetch('https://api.matsurihi.me/mltd/v1/events?prettyPrint=false');
-  const events = await response.json();
-  return events[events.length - 1];
-}
-
-async function getLoungeId() {
-  const response = await fetch(`https://api.matsurihi.me/mltd/v1/lounges/${loungeId}?prettyPrint=false`);
-  const loungeInfo = await response.json();
-  return loungeInfo.id;
-}
-
 async function getRank() {
   const [event, lounge] = await Promise.all([princess.getCurrentEvent(), princess.getLoungeData(loungeId)]);
-  const loungeEvent = await princess.getLoungePoints(lounge.id,event.id);
+  if ((event.type == 1) || (event.type == 2) || (event.type == 6)) {
+    return false;
+  }
+  const loungeEvent = await princess.getLoungePoints(lounge.id, event.id);
   const loungeRank = loungeEvent[loungeEvent.length - 1].rank;
   const rankIncrease = loungeRank - loungeEvent[loungeEvent.length - 2].rank;
   const loungeScore = parseInt(loungeEvent[loungeEvent.length - 1].score);
@@ -38,9 +30,13 @@ async function getRank() {
 
 module.exports.run = async (anna, message, args) => {
   const rank = await getRank();
+  if (!rank) {
+    const attachment = new Discord.Attachment(getRandomImg());
+    return message.channel.send(`${message.author}P-san, you can't use that command during this type of event.`, attachment);
+  }
   const now = moment();
   let footer = '';
-  if (now < moment(rank.event.schedule.boostBeginDate)){
+  if (now < moment(rank.event.schedule.boostBeginDate)) {
     let timeLeft = moment(rank.event.schedule.boostBeginDate).fromNow(true);
     footer = `${timeLeft} till multipliers are available.`;
   } else {
@@ -51,7 +47,7 @@ module.exports.run = async (anna, message, args) => {
     .setColor('#7e6ca8')
     .setAuthor(rank.event.name, 'https://i.imgur.com/sPOlPsI.png')
     .setTitle(`*(updated ${rank.updatedAt})*`)
-    .addField('Rank', `${rank.loungeRank} (${rank.rankIncrease})` , true)
+    .addField('Rank', `${rank.loungeRank} (${rank.rankIncrease})`, true)
     .addField('Score', `${rank.loungeScore} (+${rank.scoreIncrease})`, true)
     .setFooter(footer);
   return message.channel.send(response);

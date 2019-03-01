@@ -2,12 +2,16 @@ const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const moment = require('moment');
 const princess = require('../functions/princess');
+const { getRandomImg } = require('../resources/errors');
 
 const tier = [100, 2500, 5000, 10000, 25000, 50000, 100000];
 
 async function getBorder() {
   let response = {};
   const event = await princess.getCurrentEvent();
+  if ((event.type == 1) || (event.type == 2) || (event.type == 6)) {
+    return false;
+  }
   response.eventName = event.name;
   // Time till multipliers/event's end
   const now = moment();
@@ -40,6 +44,10 @@ async function getBorder() {
 
 module.exports.run = async (anna, message, args) => {
   const borders = await getBorder();
+  if (!borders) {
+    const attachment = new Discord.Attachment(getRandomImg());
+    return message.channel.send(`${message.author}P-san, you can't use that command during this type of event.`, attachment);
+  }
   const response = new Discord.RichEmbed()
     .setColor('#7e6ca8')
     .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
