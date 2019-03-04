@@ -2,14 +2,21 @@ const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const moment = require('moment');
 const princess = require('../functions/princess');
-const { getRandomImg } = require('../resources/errors');
+const {
+  getRandomImg
+} = require('../resources/errors');
 
 const loungeId = 'UUQGEDQQ';
 
 async function getRank() {
   const [event, lounge] = await Promise.all([princess.getCurrentEvent(), princess.getLoungeData(loungeId)]);
+  if (!event) return {
+    message: 'off-event'
+  };
   if ((event.type == 1) || (event.type == 2) || (event.type == 6)) {
-    return false;
+    return {
+      message: 'wrong event type'
+    };
   }
   const loungeEvent = await princess.getLoungePoints(lounge.id, event.id);
   const loungeRank = loungeEvent[loungeEvent.length - 1].rank;
@@ -18,6 +25,7 @@ async function getRank() {
   const scoreIncrease = loungeScore - parseInt(loungeEvent[loungeEvent.length - 2].score);
   const updatedAt = moment(loungeEvent[loungeEvent.length - 1].summaryTime).fromNow();
   return {
+    message: 'success',
     event,
     lounge,
     loungeRank,
@@ -30,9 +38,14 @@ async function getRank() {
 
 module.exports.run = async (anna, message, args) => {
   const rank = await getRank();
-  if (!rank) {
+  if (rank.message != 'success') {
     const attachment = new Discord.Attachment(getRandomImg());
-    return message.channel.send(`${message.author}P-san, you can't use that command during this type of event.`, attachment);
+    if (rank.message === 'off-event') {
+      return message.channel.send(`${message.author}P-san... too early...`, attachment);
+    }
+    if (rank.message === 'wrong event type') {
+      return message.channel.send(`${message.author}P-san, you can't use that command during this type of event.`, attachment);
+    }
   }
   const now = moment();
   let footer = '';
