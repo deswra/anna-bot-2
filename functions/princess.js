@@ -22,7 +22,9 @@ module.exports = {
     return resData;
   },
   async getCurrentEvent() {
-    return fetch(`https://api.matsurihi.me/mltd/v1/events?at=${new Date()}?prettyPrint=false`)
+    let now = new Date();
+    now.setHours(now.getHours()+9);
+    return fetch(`https://api.matsurihi.me/mltd/v1/events?at=${now}?prettyPrint=false`)
       .then(res => res.json())
       .then(res => res[0]);
   },
