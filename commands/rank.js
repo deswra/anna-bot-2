@@ -5,6 +5,9 @@ const princess = require('../functions/princess');
 const {
   getRandomImg
 } = require('../resources/errors');
+const {
+  eventDuration
+} = require('../functions/helpers');
 
 const loungeId = 'UUQGEDQQ';
 
@@ -26,7 +29,7 @@ async function getRank() {
   const loungeScore = parseInt(loungeEvent[loungeEvent.length - 1].score);
   let rankIncrease = 0;
   let scoreIncrease = 0;
-  if (loungeEvent.length != 1){
+  if (loungeEvent.length != 1) {
     rankIncrease = loungeRank - loungeEvent[loungeEvent.length - 2].rank;
     scoreIncrease = loungeScore - parseInt(loungeEvent[loungeEvent.length - 2].score);
   }
@@ -55,21 +58,20 @@ module.exports.run = async (anna, message, args) => {
     }
   }
   const now = moment();
-  let footer = '';
-  if (now < moment(rank.event.schedule.boostBeginDate)) {
-    let timeLeft = moment(rank.event.schedule.boostBeginDate).fromNow(true);
-    footer = `${timeLeft} till multipliers are available.`;
-  } else {
-    let timeLeft = moment(rank.event.schedule.endDate).fromNow(true);
-    footer = `${timeLeft} till the event ends.`;
+  let description = '';
+  let boost = moment(rank.event.schedule.boostBeginDate);
+  let end = moment(rank.event.schedule.endDate);
+  if (now < boost) {
+    description = `*Multipliers start:* ${moment(rank.event.schedule.boostBeginDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(boost, now)} from now)\n`
   }
+  description += `*Event ends:* ${moment(rank.event.schedule.endDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(end, now)} from now)\n`;
   const response = new Discord.RichEmbed()
     .setColor('#7e6ca8')
     .setAuthor(rank.event.name, 'https://i.imgur.com/sPOlPsI.png')
     .setTitle(`*(updated ${rank.updatedAt})*`)
     .addField('Rank', `${rank.loungeRank} (${rank.rankIncrease})`, true)
     .addField('Score', `${rank.loungeScore} (+${rank.scoreIncrease})`, true)
-    .setFooter(footer);
+    .setDescription(description);
   return message.channel.send(response);
 }
 

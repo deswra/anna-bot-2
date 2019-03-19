@@ -3,6 +3,9 @@ const fetch = require('node-fetch');
 const moment = require('moment');
 const princess = require('../functions/princess');
 const { getRandomImg } = require('../resources/errors');
+const {
+  eventDuration
+} = require('../functions/helpers');
 
 const tier = [10, 50, 100, 250, 500];
 
@@ -20,15 +23,14 @@ async function getBorder() {
   response.eventName = event.name;
   // Time till multipliers/event's end
   const now = moment();
-  let footer = '';
-  if (now < moment(event.schedule.boostBeginDate)) {
-    let timeLeft = moment(event.schedule.boostBeginDate).fromNow(true);
-    footer = `${timeLeft} till multipliers are available.`;
-  } else {
-    let timeLeft = moment(event.schedule.endDate).fromNow(true);
-    footer = `${timeLeft} till the event ends.`;
+  let description = '';
+  let boost = moment(event.schedule.boostBeginDate);
+  let end = moment(event.schedule.endDate);
+  if (now < boost) {
+    description = `*Multipliers start:* ${moment(event.schedule.boostBeginDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(boost, now)} from now)\n`
   }
-  response.footer = footer;
+  description += `*Event ends:* ${moment(event.schedule.endDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(end, now)} from now)\n`;
+  response.description = description;
   let count = 0;
   const [eventPtsSummary, bordersSummary] = await Promise.all([princess.getSummaryCounts(event.id, 'loungePoint'), princess.getBorders(event.id, 'loungePoint', tier.toString())]);
   if (!eventPtsSummary) return {
@@ -76,7 +78,7 @@ module.exports.run = async (anna, message, args) => {
     .setColor('#7e6ca8')
     .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
     .setTitle(`Lounge Points Ranking *(updated ${borders.updatedAt})*`)
-    .setFooter(borders.footer);
+    .setDescription(borders.description);
   for (let i = 0; i < borders.borders.length; i++) {
     response.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`, true);
   }
