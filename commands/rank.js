@@ -23,9 +23,13 @@ async function getRank() {
     message: 'off-event'
   };
   const loungeRank = loungeEvent[loungeEvent.length - 1].rank;
-  const rankIncrease = loungeRank - loungeEvent[loungeEvent.length - 2].rank;
   const loungeScore = parseInt(loungeEvent[loungeEvent.length - 1].score);
-  const scoreIncrease = loungeScore - parseInt(loungeEvent[loungeEvent.length - 2].score);
+  let rankIncrease = 0;
+  let scoreIncrease = 0;
+  if (loungeEvent.length != 1){
+    rankIncrease = loungeRank - loungeEvent[loungeEvent.length - 2].rank;
+    scoreIncrease = loungeScore - parseInt(loungeEvent[loungeEvent.length - 2].score);
+  }
   const updatedAt = moment(loungeEvent[loungeEvent.length - 1].summaryTime).fromNow();
   return {
     message: 'success',

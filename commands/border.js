@@ -44,7 +44,10 @@ async function getBorder() {
   let borders = [];
   while (playersNum >= tier[count]) {
     let border = bordersSummary[count].data[bordersSummary[count].data.length - 1].score;
-    let increase = border - bordersSummary[count].data[bordersSummary[count].data.length - 2].score;
+    let increase = 0;
+    if (bordersSummary[count].data.length != 1){
+      increase = border - bordersSummary[count].data[bordersSummary[count].data.length - 2].score;
+    }
     borders.push({
       score: border,
       increase: increase
