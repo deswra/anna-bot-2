@@ -34,6 +34,9 @@ async function getBorder() {
   if (!eventPtsSummary) return {
     message: 'off-event'
   };
+  if (!bordersSummary[0].data) return {
+    message: 'off-event'
+  };
   const playersNum = eventPtsSummary.count;
   response.updatedAt = moment(eventPtsSummary.summaryTime).fromNow();
   let borders = [];
