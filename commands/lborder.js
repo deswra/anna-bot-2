@@ -31,6 +31,9 @@ async function getBorder() {
   response.footer = footer;
   let count = 0;
   const [eventPtsSummary, bordersSummary] = await Promise.all([princess.getSummaryCounts(event.id, 'loungePoint'), princess.getBorders(event.id, 'loungePoint', tier.toString())]);
+  if (!eventPtsSummary) return {
+    message: 'off-event'
+  };
   const playersNum = eventPtsSummary.count;
   response.updatedAt = moment(eventPtsSummary.summaryTime).fromNow();
   let borders = [];

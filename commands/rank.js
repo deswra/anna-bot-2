@@ -19,6 +19,9 @@ async function getRank() {
     };
   }
   const loungeEvent = await princess.getLoungePoints(lounge.id, event.id);
+  if (loungeEvent.length == 0) return {
+    message: 'off-event'
+  };
   const loungeRank = loungeEvent[loungeEvent.length - 1].rank;
   const rankIncrease = loungeRank - loungeEvent[loungeEvent.length - 2].rank;
   const loungeScore = parseInt(loungeEvent[loungeEvent.length - 1].score);
