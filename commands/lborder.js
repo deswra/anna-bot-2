@@ -27,9 +27,9 @@ async function getBorder() {
   let boost = moment(event.schedule.boostBeginDate);
   let end = moment(event.schedule.endDate);
   if (now < boost) {
-    description = `*Multipliers start:* ${moment(event.schedule.boostBeginDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(boost, now)} from now)\n`
+    description = `*Multipliers start:* ${moment(event.schedule.boostBeginDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(boost, now)} left)\n`
   }
-  description += `*Event ends:* ${moment(event.schedule.endDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(end, now)} from now)\n`;
+  description += `*Event ends:* ${moment(event.schedule.endDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(end, now)} left)\n`;
   response.description = description;
   let count = 0;
   const [eventPtsSummary, bordersSummary] = await Promise.all([princess.getSummaryCounts(event.id, 'loungePoint'), princess.getBorders(event.id, 'loungePoint', tier.toString())]);

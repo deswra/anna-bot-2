@@ -62,9 +62,9 @@ module.exports.run = async (anna, message, args) => {
   let boost = moment(rank.event.schedule.boostBeginDate);
   let end = moment(rank.event.schedule.endDate);
   if (now < boost) {
-    description = `*Multipliers start:* ${moment(rank.event.schedule.boostBeginDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(boost, now)} from now)\n`
+    description = `*Multipliers start:* ${moment(rank.event.schedule.boostBeginDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(boost, now)} left)\n`
   }
-  description += `*Event ends:* ${moment(rank.event.schedule.endDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(end, now)} from now)\n`;
+  description += `*Event ends:* ${moment(rank.event.schedule.endDate).add(9,'hours').format('YYYY-M-D H:mm')} (${eventDuration(end, now)} left)\n`;
   const response = new Discord.RichEmbed()
     .setColor('#7e6ca8')
     .setAuthor(rank.event.name, 'https://i.imgur.com/sPOlPsI.png')
