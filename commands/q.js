@@ -7,7 +7,7 @@ const img = /(png|jpg|gif|jpeg|svg)$/i;
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 
-module.exports.run = async (bot, message, args) => {
+module.exports.run = async (anna, message, args) => {
   let author = message.author.id;
   let name = args.shift();
   if (/^"/.test(name)) {
