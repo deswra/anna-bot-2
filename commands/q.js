@@ -34,7 +34,7 @@ module.exports.run = async (anna, message, args) => {
           content
         });
         quote.save().then(res => console.log(res)).catch(err => console.log(err));
-        return message.channel.send(`${message.author}P-san, your quote has been added.`);
+        return message.channel.send(`${message.author}P-san, your quote ${name} has been added.`);
       }
       if (foundQuote.author == author){
         foundQuote.content = content;
