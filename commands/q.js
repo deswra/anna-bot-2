@@ -11,10 +11,13 @@ module.exports.run = async (bot, message, args) => {
   let author = message.author.id;
   let name = args.shift();
   if (/^"/.test(name)) {
-    for (let i = 0; i < args.length; i++){
-      name += ' ';
-      name += args.shift();
-      if (/"$/.test(name)) break; 
+    if (!/"$/.test(name))
+    {
+      for (let i = 0; i < args.length; i++){
+        name += ' ';
+        name += args.shift();
+        if (/"$/.test(name)) break;
+      }
     }
     name = name.slice(1, -1);
   }
