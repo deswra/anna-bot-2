@@ -57,4 +57,4 @@ module.exports = {
     }
     return response.slice(0, -1);
   }
-}
+};
