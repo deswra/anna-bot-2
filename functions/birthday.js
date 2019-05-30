@@ -12,7 +12,7 @@ const keywords = [
     value: 1
   },
   {
-    words: ['birthday', 'birthdate', 'born', 'birthdays', 'bd'],
+    words: ['birthday', 'birthdate', 'born', 'birthdays', 'bd', 'bday', 'bdate', 'bdays'],
     value: 0.9
   },
   {
