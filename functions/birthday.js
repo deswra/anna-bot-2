@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const fanart = require('../resources/fanart.json');
 
-const birthdayStart = moment(1559047301000);
+const birthdayStart = moment(1559228400000);
 const birthdayEnd = moment(birthdayStart + moment.duration(24, 'hours'));
 
 const keywords = [
