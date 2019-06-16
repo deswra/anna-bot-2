@@ -39,5 +39,10 @@ module.exports = {
     return fetch(
       `https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/logs/${type}/${tiers}?prettyPrint=false`
     ).then(res => res.json());
+  },
+  async getSsrList() {
+    return fetch('https://api.matsurihi.me/mltd/v1/cards?rarity=ssr&extraType=none,fes&prettyPrint=false').then(res =>
+      res.json()
+    );
   }
 };

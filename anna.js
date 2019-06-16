@@ -31,6 +31,9 @@ anna.once('ready', async () => {
   console.log('Anna is ready!');
 });
 
+// Game command cooldown
+let lastPlay = 0;
+
 anna.on('message', async message => {
   if (message.author.bot) return;
   if (message.channel.type == 'dm') return;
@@ -43,6 +46,13 @@ anna.on('message', async message => {
   let cmd = messageArray[0];
   let args = messageArray.slice(1);
 
+  if (cmd === 'game') {
+    if (['easy', 'normal', 'hard'].includes(args[0])) {
+      const now = Date.now();
+      if (now - 10000 < lastPlay) return;
+      lastPlay = now;
+    }
+  }
   let commandFile = anna.commands.get(cmd);
   if (commandFile) commandFile.run(anna, message, args);
 });
