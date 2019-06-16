@@ -119,7 +119,7 @@ module.exports.run = async (anna, message, args) => {
             const user = await message.guild.fetchMember(scores[i].user);
             playerList += `${scores[i].score} - ${user.displayName}P-san\n`;
           }
-          if ((playerList = '')) playerList = 'Noone has played yet...';
+          if (playerList === '') playerList = 'Noone has played yet...';
           const response = new Discord.RichEmbed().setAuthor('Leaderboard').setDescription(playerList);
           return message.channel.send(response);
         });
