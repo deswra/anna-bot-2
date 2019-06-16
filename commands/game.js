@@ -4,11 +4,13 @@ const sharp = require('sharp');
 const mongoose = require('mongoose');
 
 const Score = require('../models/score');
+const UpdatedAt = require('../models/cache/updatedat');
+const CardList = require('../models/cache/cardlist');
 
-const { getSsrList } = require('../functions/princess');
+const { getCardList } = require('../functions/princess');
 
-const imgWidth = 1280;
-const imgHeight = 720;
+const imgWidth = 640;
+const imgHeight = 800;
 
 const diffs = {
   easy: {
@@ -86,14 +88,52 @@ const answers = {
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 
-async function getRandomCardArt() {
-  const ssrList = await getSsrList();
-  const randomCardKey = Math.floor(Math.random() * ssrList.length);
-  const randomArt = Math.floor(Math.random() * 2);
-  return {
-    idolId: ssrList[randomCardKey].idolId,
-    link: `https://storage.matsurihi.me/mltd/card_bg/${ssrList[randomCardKey].resourceId}_${randomArt}.png`
+async function sendQuiz(anna, message, card, mode) {
+  const filter = answer => {
+    return answers[card.idolId].includes(answer.content.split(' ')[0].toLowerCase());
   };
+  const width = diffs[mode].width;
+  const height = diffs[mode].height;
+  const left = Math.floor(Math.random() * (imgWidth - width + 1));
+  const top = Math.floor(Math.random() * (imgHeight - height + 1));
+  const link = `https://storage.matsurihi.me/mltd/card/${card.resourceId}_${Math.floor(Math.random() * 2)}_b.png`;
+  const img = await fetch(link).then(res => res.buffer());
+  const croppedImg = await sharp(img)
+    .extract({ left, top, width, height })
+    .toBuffer();
+  const attachment = new Discord.Attachment(croppedImg, 'img.png');
+  await message.channel.send('**Whose card is this?**', attachment);
+  message.channel
+    .awaitMessages(filter, { maxMatches: 1, time: 15000, errors: ['time'] })
+    .then(collected => {
+      const userId = collected.first().author.id;
+      Score.findOneAndUpdate(
+        { user: userId },
+        { $inc: { score: diffs[mode].score } },
+        { new: true },
+        (err, foundUser) => {
+          if (!foundUser) {
+            const newUser = new Score({ user: userId, score: diffs[mode].score });
+            newUser.save((err, addedUser) => {
+              message.channel.send(
+                `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
+                  diffs[mode].score > 1 ? 's' : ''
+                }!! Your point total is now ${addedUser.score}.\n${link}`
+              );
+            });
+          } else {
+            message.channel.send(
+              `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
+                diffs[mode].score > 1 ? 's' : ''
+              }!! Your point total is now ${foundUser.score}.\n${link}`
+            );
+          }
+        }
+      );
+    })
+    .catch(collected => {
+      return message.channel.send(`Time's up!\n${link}`);
+    });
 }
 
 module.exports.run = async (anna, message, args) => {
@@ -107,7 +147,7 @@ module.exports.run = async (anna, message, args) => {
             return console.log(err);
           } else {
             if (!foundScore) return message.channel.send(`${message.author}P-san, you haven't play any games...`);
-            return message.reply(`your total points is ${foundScore.score}.`);
+            return message.reply(`your point total is ${foundScore.score}.`);
           }
         });
         break;
@@ -129,61 +169,28 @@ module.exports.run = async (anna, message, args) => {
     }
     return;
   }
-  const width = diffs[mode].width;
-  const height = diffs[mode].height;
-  let left = Math.floor(Math.random() * imgWidth) - width;
-  let top = Math.floor(Math.random() * imgHeight) - height;
-  if (left < 0) left = 0;
-  if (top < 0) top = 0;
-  const cardArt = await getRandomCardArt();
-  console.log(cardArt.idolId);
-  const filter = answer => {
-    return answers[cardArt.idolId].includes(answer.content.split(' ')[0].toLowerCase());
-  };
-  const img = await fetch(cardArt.link).then(res => res.buffer());
-  const croppedImg = await sharp(img)
-    .extract({
-      left,
-      top,
-      width,
-      height
-    })
-    .toBuffer();
-  const attachment = new Discord.Attachment(croppedImg, 'img.png');
-  await message.channel.send('**Whose SSR is this?**', attachment);
-  message.channel
-    .awaitMessages(filter, { maxMatches: 1, time: 15000, errors: ['time'] })
-    .then(collected => {
-      const userId = collected.first().author.id;
-      Score.findOneAndUpdate(
-        { user: userId },
-        { $inc: { score: diffs[mode].score } },
-        { new: true },
-        (err, foundUser) => {
-          if (!foundUser) {
-            const newUser = new Score({ user: userId, score: diffs[mode].score });
-            newUser.save((err, addedUser) => {
-              message.channel.send(
-                `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
-                  diffs[mode].score > 1 ? 's' : ''
-                }!! Your total points is now ${addedUser.score}.`
-              );
-            });
-          } else {
-            message.channel.send(
-              `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
-                diffs[mode].score > 1 ? 's' : ''
-              }!! Your total points is now ${foundUser.score}.`
-            );
-          }
-        }
-      );
-    })
-    .catch(collected => {
-      message.channel.send("Time's up!");
-      const answerAttachment = new Discord.Attachment(cardArt.link, `${answers[cardArt.idolId][0]}.png`);
-      message.channel.send(answerAttachment);
-    });
+  const now = Date.now();
+  UpdatedAt.findOne({ name: 'cardList' }, 'updatedAt', async (err, res) => {
+    if (err) return console.log(err);
+    if (!res) {
+      const cardList = await getCardList();
+      const randomCardKey = Math.floor(Math.random() * cardList.length);
+      sendQuiz(anna, message, cardList[randomCardKey], mode);
+      UpdatedAt.create({ name: 'cardList', updatedAt: now });
+      return CardList.insertMany(cardList);
+    } else {
+      const card = await CardList.aggregate([{ $sample: { size: 1 } }]);
+      if (now - 86400000 > res.updatedAt) {
+        sendQuiz(anna, message, card[0], mode);
+        const cardList = await getCardList();
+        res.updatedAt = now;
+        res.save();
+        return CardList.insertMany(cardList);
+      } else {
+        return sendQuiz(anna, message, card[0], mode);
+      }
+    }
+  });
 };
 
 module.exports.help = {
