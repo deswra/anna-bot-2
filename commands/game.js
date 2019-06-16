@@ -104,8 +104,9 @@ module.exports.run = async (anna, message, args) => {
         const id = message.author.id;
         Score.findOne({ user: id }, 'score', (err, foundScore) => {
           if (err) {
-            return message.reply("you haven't play any games...");
+            return console.log(err);
           } else {
+            if (!foundScore) return message.reply("you haven't play any games...");
             return message.reply(`your total points is ${foundScore.score}.`);
           }
         });
