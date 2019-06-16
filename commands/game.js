@@ -119,6 +119,7 @@ module.exports.run = async (anna, message, args) => {
             const user = await message.guild.fetchMember(scores[i].user);
             playerList += `${scores[i].score} - ${user.displayName}P-san\n`;
           }
+          if ((playerList = '')) playerList = 'Noone has played yet...';
           const response = new Discord.RichEmbed().setAuthor('Leaderboard').setDescription(playerList);
           return message.channel.send(response);
         });
@@ -162,16 +163,16 @@ module.exports.run = async (anna, message, args) => {
             const newUser = new Score({ user: userId, score: diffs[mode].score });
             newUser.save((err, addedUser) => {
               message.channel.send(
-                `${collected.first().author.username}P-san is correct, you received ${
-                  diffs[mode].score
-                } points!! Your total points is now ${addedUser.score}.`
+                `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
+                  diffs[mode].score > 1 ? 's' : ''
+                }!! Your total points is now ${addedUser.score}.`
               );
             });
           } else {
             message.channel.send(
-              `${collected.first().author.username}P-san is correct, you received ${
-                diffs[mode].score
-              } points!! Your total points is now ${foundUser.score}.`
+              `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
+                diffs[mode].score > 1 ? 's' : ''
+              }!! Your total points is now ${foundUser.score}.`
             );
           }
         }
