@@ -106,7 +106,7 @@ module.exports.run = async (anna, message, args) => {
           if (err) {
             return console.log(err);
           } else {
-            if (!foundScore) return message.reply("you haven't play any games...");
+            if (!foundScore) return message.channel.send(`${message.author}P-san, you haven't play any games...`);
             return message.reply(`your total points is ${foundScore.score}.`);
           }
         });
