@@ -49,7 +49,7 @@ anna.on('message', async message => {
   if (cmd === 'game') {
     if (['easy', 'normal', 'hard'].includes(args[0])) {
       const now = Date.now();
-      if (now - 10000 < lastPlay) return;
+      if (now - 15000 < lastPlay) return;
       lastPlay = now;
     }
   }

@@ -24,7 +24,7 @@ const diffs = {
   hard: {
     width: 100,
     height: 100,
-    score: 4
+    score: 3
   }
 };
 
@@ -152,7 +152,7 @@ module.exports.run = async (anna, message, args) => {
   const attachment = new Discord.Attachment(croppedImg, 'img.png');
   await message.channel.send('**Whose SSR is this?**', attachment);
   message.channel
-    .awaitMessages(filter, { maxMatches: 1, time: 10000, errors: ['time'] })
+    .awaitMessages(filter, { maxMatches: 1, time: 15000, errors: ['time'] })
     .then(collected => {
       const userId = collected.first().author.id;
       Score.findOneAndUpdate(
