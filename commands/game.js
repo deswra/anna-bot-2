@@ -185,7 +185,10 @@ module.exports.run = async (anna, message, args) => {
         const cardList = await getCardList();
         res.updatedAt = now;
         res.save();
-        return CardList.insertMany(cardList);
+        CardList.deleteMany({}, err => {
+          CardList.insertMany(cardList);
+        });
+        return;
       } else {
         return sendQuiz(anna, message, card[0], mode);
       }
