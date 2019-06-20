@@ -8,6 +8,7 @@ const UpdatedAt = require('../models/cache/updatedat');
 const CardList = require('../models/cache/cardlist');
 
 const { getCardList } = require('../functions/princess');
+const chars = require('../resources/chars');
 
 const imgWidth = 640;
 const imgHeight = 800;
@@ -88,6 +89,8 @@ const answers = {
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 
+const timeLimit = 15;
+
 async function sendQuiz(anna, message, card, mode) {
   const filter = answer => {
     return answers[card.idolId].includes(answer.content.split(' ')[0].toLowerCase());
@@ -96,15 +99,37 @@ async function sendQuiz(anna, message, card, mode) {
   const height = diffs[mode].height;
   const left = Math.floor(Math.random() * (imgWidth - width + 1));
   const top = Math.floor(Math.random() * (imgHeight - height + 1));
-  const link = `https://storage.matsurihi.me/mltd/card/${card.resourceId}_${Math.floor(Math.random() * 2)}_b.png`;
-  const img = await fetch(link).then(res => res.buffer());
+  const cardartVer = Math.floor(Math.random() * 2);
+  const img = await fetch(`https://storage.matsurihi.me/mltd/card/${card.resourceId}_${cardartVer}_b.png`).then(res =>
+    res.buffer()
+  );
+  let link;
+  if (card.rarity === 4) {
+    link = `https://storage.matsurihi.me/mltd/card_bg/${card.resourceId}_${cardartVer}.png`;
+  } else {
+    link = `https://storage.matsurihi.me/mltd/card/${card.resourceId}_${cardartVer}_b.png`;
+  }
   const croppedImg = await sharp(img)
     .extract({ left, top, width, height })
     .toBuffer();
   const attachment = new Discord.Attachment(croppedImg, 'img.png');
-  await message.channel.send('**Whose card is this?**', attachment);
+  await message.channel.send({
+    files: [attachment],
+    embed: {
+      color: Math.floor(Math.random() * 16777215),
+      author: {
+        name: 'Whose card is this?'
+      },
+      footer: {
+        text: `Time limit: ${timeLimit}s`
+      },
+      image: {
+        url: 'attachment://img.png'
+      }
+    }
+  });
   message.channel
-    .awaitMessages(filter, { maxMatches: 1, time: 15000, errors: ['time'] })
+    .awaitMessages(filter, { maxMatches: 1, time: timeLimit * 1000, errors: ['time'] })
     .then(collected => {
       const userId = collected.first().author.id;
       Score.findOneAndUpdate(
@@ -115,24 +140,53 @@ async function sendQuiz(anna, message, card, mode) {
           if (!foundUser) {
             const newUser = new Score({ user: userId, score: diffs[mode].score });
             newUser.save((err, addedUser) => {
-              message.channel.send(
-                `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
-                  diffs[mode].score > 1 ? 's' : ''
-                }!! Your point total is now ${addedUser.score}.\n${link}`
-              );
+              return message.channel.send({
+                embed: {
+                  author: {
+                    name: chars[card.idolId].name
+                  },
+                  color: Math.floor(Math.random() * 16777215),
+                  description: `${collected.first().author.username}P-san is correct, you received **${
+                    diffs[mode].score
+                  }** point${diffs[mode].score > 1 ? 's' : ''}!!\nYour point total is now **${addedUser.score}**.`,
+                  image: {
+                    url: link
+                  }
+                }
+              });
             });
           } else {
-            message.channel.send(
-              `${collected.first().author.username}P-san is correct, you received ${diffs[mode].score} point${
-                diffs[mode].score > 1 ? 's' : ''
-              }!! Your point total is now ${foundUser.score}.\n${link}`
-            );
+            return message.channel.send({
+              embed: {
+                author: {
+                  name: chars[card.idolId].name
+                },
+                color: Math.floor(Math.random() * 16777215),
+                description: `${collected.first().author.username}P-san is correct, you received **${
+                  diffs[mode].score
+                }** point${diffs[mode].score > 1 ? 's' : ''}!!\nYour point total is now **${foundUser.score}**.`,
+                image: {
+                  url: link
+                }
+              }
+            });
           }
         }
       );
     })
     .catch(collected => {
-      return message.channel.send(`Time's up!\n${link}`);
+      return message.channel.send({
+        embed: {
+          author: {
+            name: chars[card.idolId].name
+          },
+          color: Math.floor(Math.random() * 16777215),
+          description: "Times's up!!",
+          image: {
+            url: link
+          }
+        }
+      });
     });
 }
 
@@ -153,17 +207,21 @@ module.exports.run = async (anna, message, args) => {
         break;
       case 'rank':
         Score.find({}, async (err, scores) => {
-          let playerList = '';
           if (err) return console.log(err);
-          scores.sort((a, b) => b.score - a.score);
+          let response = '';
           for (let i = 0; i < scores.length; i++) {
             const user = await message.guild.fetchMember(scores[i].user);
-            playerList += `${scores[i].score} - ${user.displayName}P-san\n`;
+            response += `**[${i + 1}]** ${user.displayName}P-san: ${scores[i].score}\n`;
           }
-          if (playerList === '') playerList = 'Noone has played yet...';
-          const response = new Discord.RichEmbed().setAuthor('Leaderboard').setDescription(playerList);
-          return message.channel.send(response);
-        });
+          if (playerList === '') response = 'Noone has played yet...';
+          const embed = new Discord.RichEmbed()
+            .setAuthor('Leaderboard')
+            .setDescription(response)
+            .setColor(Math.floor(Math.random() * 16777215));
+          return message.channel.send(embed);
+        })
+          .limit(5)
+          .sort({ point: -1 });
       default:
         return;
     }
