@@ -181,7 +181,7 @@ async function sendQuiz(anna, message, card, mode) {
             name: chars[card.idolId].name
           },
           color: Math.floor(Math.random() * 16777215),
-          description: "Times's up!!",
+          description: "Time's up!!",
           image: {
             url: link
           }
