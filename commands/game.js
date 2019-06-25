@@ -213,7 +213,7 @@ module.exports.run = async (anna, message, args) => {
             const user = await message.guild.fetchMember(scores[i].user);
             response += `**[${i + 1}]** ${user.displayName}P-san: ${scores[i].score}\n`;
           }
-          if (playerList === '') response = 'Noone has played yet...';
+          if (scores === '') response = 'Noone has played yet...';
           const embed = new Discord.RichEmbed()
             .setAuthor('Leaderboard')
             .setDescription(response)
@@ -221,7 +221,7 @@ module.exports.run = async (anna, message, args) => {
           return message.channel.send(embed);
         })
           .limit(5)
-          .sort({ point: -1 });
+          .sort({ score: -1 });
       default:
         return;
     }
