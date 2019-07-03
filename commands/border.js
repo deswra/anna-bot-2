@@ -3,9 +3,11 @@ const fetch = require('node-fetch');
 const moment = require('moment');
 const princess = require('../functions/princess');
 const { getRandomImg } = require('../resources/errors');
-const { eventDuration } = require('../functions/helpers');
+const { eventDuration, getIdFromName } = require('../functions/helpers');
+const chars = require('../resources/chars');
 
 const tier = [100, 2500, 5000, 10000, 25000, 50000, 100000];
+const idolTier = [1, 10, 100, 1000];
 
 async function getBorder() {
   let response = {};
@@ -68,28 +70,53 @@ async function getBorder() {
 }
 
 module.exports.run = async (anna, message, args) => {
-  const borders = await getBorder();
-  if (borders.message != 'success') {
-    const attachment = new Discord.Attachment(getRandomImg());
-    if (borders.message === 'off-event') {
-      return message.channel.send(`${message.author}P-san... too early...`, attachment);
+  if (!args[0]) {
+    const borders = await getBorder();
+    if (borders.message != 'success') {
+      const attachment = new Discord.Attachment(getRandomImg());
+      if (borders.message === 'off-event') {
+        return message.channel.send(`${message.author}P-san... too early...`, attachment);
+      }
+      if (borders.message === 'wrong event type') {
+        return message.channel.send(
+          `${message.author}P-san, you can't use that command during this type of event.`,
+          attachment
+        );
+      }
     }
-    if (borders.message === 'wrong event type') {
-      return message.channel.send(
-        `${message.author}P-san, you can't use that command during this type of event.`,
-        attachment
-      );
+    const response = new Discord.RichEmbed()
+      .setColor('#7e6ca8')
+      .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
+      .setTitle(`Event Points Ranking *(updated ${borders.updatedAt})*`)
+      .setDescription(borders.description);
+    for (let i = 0; i < borders.borders.length; i++) {
+      response.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`, true);
+    }
+    return message.channel.send(response);
+  } else {
+    const idolId = getIdFromName(args[0]);
+    if (idolId) {
+      const borders = await princess.getIdolPoint(92, idolId);
+      const response = new Discord.RichEmbed()
+        .setColor('#7e6ca8')
+        .setAuthor(chars[idolId].name, 'https://i.imgur.com/sPOlPsI.png')
+        .setTitle(
+          `Event Points Ranking *(updated ${moment(
+            borders[0].data[borders[0].data.length - 1].summaryTime
+          ).fromNow()})*`
+        );
+      for (let i = 0; i < borders.length; i++) {
+        response.addField(
+          `Top ${borders[i].rank}`,
+          `${parseInt(borders[i].data[borders[i].data.length - 1].score)} (+${parseInt(
+            borders[i].data[borders[i].data.length - 1].score - borders[i].data[borders[i].data.length - 2].score
+          )})`,
+          true
+        );
+      }
+      return message.channel.send(response);
     }
   }
-  const response = new Discord.RichEmbed()
-    .setColor('#7e6ca8')
-    .setAuthor(borders.eventName, 'https://i.imgur.com/sPOlPsI.png')
-    .setTitle(`Event Points Ranking *(updated ${borders.updatedAt})*`)
-    .setDescription(borders.description);
-  for (let i = 0; i < borders.borders.length; i++) {
-    response.addField(`T${tier[i]}`, `${borders.borders[i].score} (+${borders.borders[i].increase})`, true);
-  }
-  return message.channel.send(response);
 };
 
 module.exports.help = {

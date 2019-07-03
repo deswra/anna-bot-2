@@ -44,5 +44,10 @@ module.exports = {
     return fetch(
       'https://api.matsurihi.me/mltd/v1/cards?rarity=ssr,sr,r&extraType=none,pst,pstr,fes&prettyPrint=false'
     ).then(res => res.json());
+  },
+  async getIdolPoint(eventId, idolId, tiers = `1,2,3,10,100,1000`) {
+    return fetch(
+      `https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/logs/idolPoint/${idolId}/${tiers}?prettyPrint=false`
+    ).then(res => res.json());
   }
 };
