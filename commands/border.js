@@ -94,7 +94,7 @@ module.exports.run = async (anna, message, args) => {
     }
     return message.channel.send(response);
   } else {
-    const idolId = getIdFromName(args[0]);
+    const idolId = getIdFromName(args[0].toLowerCase());
     if (idolId) {
       const borders = await princess.getIdolPoint(92, idolId);
       const response = new Discord.RichEmbed()
