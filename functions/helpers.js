@@ -62,6 +62,10 @@ function getIdFromName(name) {
   }
 }
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 module.exports = {
   eventDuration(a, b) {
     let duration = moment.duration(a - b);
@@ -119,5 +123,6 @@ module.exports = {
     }
     return response.slice(0, -1);
   },
-  getIdFromName
+  getIdFromName,
+  capitalizeFirstLetter
 };
