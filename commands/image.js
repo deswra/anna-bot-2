@@ -40,20 +40,30 @@ const createCardListResponse = (idolName, cards, startIndex = 1) => {
 const createCardResponse = (card, awakend, outfit, alt) => {
   const color = types[card.idolType].color;
   const icon = types[card.idolType].icon;
-  const title = princess.getCardTitleFromName(card.name);
+  const cardTitle = princess.getCardTitleFromName(card.name);
+  let title = princess.getCardTitleFromName(card.name);
+  const idolName = chars[card.idolId].name;
   const awakendImg = awakend && card.rarity !== 1 ? 1 : 0;
   let imageUrl;
   if (outfit) {
     if (!card.costume) {
       return createErrorResponse('NO_OUTFIT');
     }
-    if (alt) {
+    if (alt === 1) {
       if (!card.bonusCostume) {
         return createErrorResponse('NO_ALT_OUTFIT');
       }
       imageUrl = `https://storage.matsurihi.me/mltd/costume_icon_ll/${card.bonusCostume.resourceId}.png`;
+      title = princess.getCostumeTitleFromName(card.bonusCostume.name);
+    } else if (alt === 2) {
+      if (!card.rank5Costume) {
+        return createErrorResponse('NO_2ND_ALT_OUTFIT');
+      }
+      imageUrl = `https://storage.matsurihi.me/mltd/costume_icon_ll/${card.rank5Costume.resourceId}.png`;
+      title = princess.getCostumeTitleFromName(card.rank5Costume.name);
     } else {
       imageUrl = `https://storage.matsurihi.me/mltd/costume_icon_ll/${card.costume.resourceId}.png`;
+      title = princess.getCostumeTitleFromName(card.costume.name);
     }
   } else
     imageUrl =
@@ -62,9 +72,13 @@ const createCardResponse = (card, awakend, outfit, alt) => {
         : `https://storage.matsurihi.me/mltd/card/${card.resourceId}_${awakendImg}_b.png`;
   const response = new Discord.RichEmbed()
     .setColor(color)
-    .setAuthor(`[${princess.getRarityName(card.rarity)}] ${title} ${chars[card.idolId].name}`, icon)
     .setImage(imageUrl)
     .setFooter(`ID: ${card.id}`);
+  if (outfit) {
+    response.setAuthor(`[${title}] ${idolName}`).setFooter(`From card ${cardTitle}`);
+  } else {
+    response.setAuthor(`[${princess.getRarityName(card.rarity)}] ${title} ${idolName}`, icon);
+  }
   return response;
 };
 
@@ -76,6 +90,8 @@ const createErrorResponse = error => {
       return "This card doesn't have an outfit.";
     case 'NO_ALT_OUTFIT':
       return "This card doesn't have an alt outfit.";
+    case 'NO_2ND_ALT_OUTFIT':
+      return "This card doesn't have a second alt outfit.";
   }
 };
 
@@ -93,9 +109,11 @@ module.exports.run = async (anna, message, args) => {
     outfit = false;
   }
   if (args[2] === 'alt') {
-    alt = true;
+    alt = 1;
+  } else if (args[2] === 'alt2') {
+    alt = 2;
   } else {
-    alt = false;
+    alt = 0;
   }
   const responses = await createResponseFromCardName(cardName, awakend, outfit, alt);
   if (Array.isArray(responses) && responses.length) {

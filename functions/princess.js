@@ -63,6 +63,10 @@ const getCardTitleFromName = name => {
   return splitName[0];
 };
 
+const getCostumeTitleFromName = name => {
+  return name.substring(name.indexOf('[') + 1, name.indexOf(']'));
+};
+
 const getEvaluationType = evaluation => {
   switch (evaluation) {
     case 0:
@@ -236,5 +240,6 @@ module.exports = {
   getExtraTypeName,
   getCardTitleFromName,
   getSkillDescription,
-  getLeaderSkillDescription
+  getLeaderSkillDescription,
+  getCostumeTitleFromName
 };
