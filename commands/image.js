@@ -75,6 +75,7 @@ const createCardResponse = (card, awakend, outfit, alt) => {
     .setImage(imageUrl)
     .setFooter(`ID: ${card.id}`);
   if (outfit) {
+    response.setDescription(card.costume.description);
     response.setAuthor(`[${title}] ${idolName}`).setFooter(`From card ${cardTitle}`);
   } else {
     response.setAuthor(`[${princess.getRarityName(card.rarity)}] ${title} ${idolName}`, icon);
