@@ -98,7 +98,6 @@ const createErrorResponse = error => {
 
 module.exports.run = async (anna, message, args) => {
   const cardName = args[0].toLowerCase();
-  let outfit, awakend, alt;
   const awakend = args[1] === 'awakened' || args[1] === 'a';
   const outfit = args[1] === 'outfit' || args[1] === 'o';
   let alt;
