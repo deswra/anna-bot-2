@@ -130,7 +130,7 @@ const getSkillDescription = skill => {
       } life will be recovered for every ${getEvaluationType(skill.evaluation2)} note.`;
     case 10:
       return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that ${
-        skill.value[2]
+        skill.value[1]
       } life will be consumed so ${getEvaluationType(skill.evaluation)} note scores increase by ${
         skill.value[0]
       }% for ${skill.duration} seconds`;

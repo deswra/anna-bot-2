@@ -99,19 +99,12 @@ const createErrorResponse = error => {
 module.exports.run = async (anna, message, args) => {
   const cardName = args[0].toLowerCase();
   let outfit, awakend, alt;
-  if (args[1] === 'awakened') {
-    awakend = true;
-  } else {
-    awakend = false;
-  }
-  if (args[1] === 'outfit') {
-    outfit = true;
-  } else {
-    outfit = false;
-  }
-  if (args[2] === 'alt') {
+  const awakend = args[1] === 'awakened' || args[1] === 'a';
+  const outfit = args[1] === 'outfit' || args[1] === 'o';
+  let alt;
+  if (args[2] === 'alt' || args[2] === 'a') {
     alt = 1;
-  } else if (args[2] === 'alt2') {
+  } else if (args[2] === 'alt2' || args[2] === 'a2') {
     alt = 2;
   } else {
     alt = 0;
