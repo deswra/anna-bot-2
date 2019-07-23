@@ -26,7 +26,7 @@ fs.readdir('./commands/', (err, files) => {
 
 anna.once('ready', async () => {
   anna.user.setActivity(process.env.game, {
-    type: 'PLAYING'
+    type: process.env.activityType
   });
   console.log('Anna is ready!');
 });

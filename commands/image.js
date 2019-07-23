@@ -5,7 +5,7 @@ const princess = require('../functions/princess');
 const chars = require('../resources/chars');
 const types = require('../resources/types');
 
-const createResponseFromCardName = async (cardName, awakend, outfit, alt) => {
+const createResponseFromCardName = async (cardName, awakened, outfit, alt) => {
   const [idolName, cardNum] = cardName.split(/([0-9]*$)/);
   const idolId = getIdFromName(idolName);
   if (idolId) {
@@ -14,7 +14,7 @@ const createResponseFromCardName = async (cardName, awakend, outfit, alt) => {
     if (!cardNum) {
       return [createCardResponse(cards[0]), createCardListResponse(idolName, cards, 2)];
     } else {
-      return createCardResponse(cards[cardNum - 1], awakend, outfit, alt);
+      return createCardResponse(cards[cardNum - 1], awakened, outfit, alt);
     }
   } else {
     return createErrorResponse('WRONG_NAME');
@@ -37,13 +37,13 @@ const createCardListResponse = (idolName, cards, startIndex = 1) => {
   return response;
 };
 
-const createCardResponse = (card, awakend, outfit, alt) => {
+const createCardResponse = (card, awakened, outfit, alt) => {
   const color = types[card.idolType].color;
   const icon = types[card.idolType].icon;
   const cardTitle = princess.getCardTitleFromName(card.name);
   let title = princess.getCardTitleFromName(card.name);
   const idolName = chars[card.idolId].name;
-  const awakendImg = awakend && card.rarity !== 1 ? 1 : 0;
+  const awakenedImg = awakened && card.rarity !== 1 ? 1 : 0;
   let imageUrl;
   if (outfit) {
     if (!card.costume) {
@@ -68,8 +68,8 @@ const createCardResponse = (card, awakend, outfit, alt) => {
   } else
     imageUrl =
       card.rarity === 4
-        ? `https://storage.matsurihi.me/mltd/card_bg/${card.resourceId}_${awakendImg}.png`
-        : `https://storage.matsurihi.me/mltd/card/${card.resourceId}_${awakendImg}_b.png`;
+        ? `https://storage.matsurihi.me/mltd/card_bg/${card.resourceId}_${awakenedImg}.png`
+        : `https://storage.matsurihi.me/mltd/card/${card.resourceId}_${awakenedImg}_b.png`;
   const response = new Discord.RichEmbed()
     .setColor(color)
     .setImage(imageUrl)
@@ -98,7 +98,7 @@ const createErrorResponse = error => {
 
 module.exports.run = async (anna, message, args) => {
   const cardName = args[0].toLowerCase();
-  const awakend = args[1] === 'awakened' || args[1] === 'a';
+  const awakened = args[1] === 'awakened' || args[1] === 'a';
   const outfit = args[1] === 'outfit' || args[1] === 'o';
   let alt;
   if (args[2] === 'alt' || args[2] === 'a') {
@@ -108,7 +108,7 @@ module.exports.run = async (anna, message, args) => {
   } else {
     alt = 0;
   }
-  const responses = await createResponseFromCardName(cardName, awakend, outfit, alt);
+  const responses = await createResponseFromCardName(cardName, awakened, outfit, alt);
   if (Array.isArray(responses) && responses.length) {
     responses.forEach(res => {
       message.channel.send(res);
