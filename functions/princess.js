@@ -3,14 +3,14 @@ const fetch = require('node-fetch');
 const types = require('../resources/types');
 const { capitalizeFirstLetter } = require('../functions/helpers');
 
-const isAnniSSR = card => {
+const isAnniSSR = (card) => {
   if (card.extraType === 5 || card.extraType === 7) {
     if (card.rarity === 4) return true;
   }
   return false;
 };
 
-const sortCardsByRarity = cards => {
+const sortCardsByRarity = (cards) => {
   cards.sort((a, b) => {
     if (a.rarity === b.rarity) {
       return a.id - b.id;
@@ -20,12 +20,12 @@ const sortCardsByRarity = cards => {
   return cards;
 };
 
-const getIdolTypeName = idolType => {
+const getIdolTypeName = (idolType) => {
   if (idolType === 4) return 'all';
   return types[idolType].name;
 };
 
-const getRarityName = rarity => {
+const getRarityName = (rarity) => {
   switch (rarity) {
     case 1:
       return 'N';
@@ -38,7 +38,7 @@ const getRarityName = rarity => {
   }
 };
 
-const getExtraTypeName = extraType => {
+const getExtraTypeName = (extraType) => {
   switch (extraType) {
     case 0:
       return 'Normal';
@@ -57,17 +57,17 @@ const getExtraTypeName = extraType => {
   }
 };
 
-const getCardTitleFromName = name => {
+const getCardTitleFromName = (name) => {
   const splitName = name.split('　'); // not a space character
   if (splitName.length === 1) return 'Initial';
   return splitName[0];
 };
 
-const getCostumeTitleFromName = name => {
+const getCostumeTitleFromName = (name) => {
   return name.substring(name.indexOf('[') + 1, name.indexOf(']'));
 };
 
-const getEvaluationType = evaluation => {
+const getEvaluationType = (evaluation) => {
   switch (evaluation) {
     case 0:
       return 'all';
@@ -88,24 +88,20 @@ const getEvaluationType = evaluation => {
   }
 };
 
-const getSkillDescription = skill => {
+const getSkillDescription = (skill) => {
   switch (skill.effectId) {
     case 1:
       return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that ${getEvaluationType(
         skill.evaluation
       )} note scores will increase by ${skill.value[0]}% for ${skill.duration} seconds.`;
     case 2:
-      return `Every ${skill.interval} seconds, there is a ${
-        skill.probability
-      }% chance that combo bonuses will increase by ${skill.value[0]}% for ${skill.duration} seconds.`;
+      return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that combo bonuses will increase by ${skill.value[0]}% for ${skill.duration} seconds.`;
     case 3:
       return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that ${getEvaluationType(
         skill.evaluation
       )} notes will recover ${skill.value[0]} life for ${skill.duration} seconds.`;
     case 4:
-      return `Every ${skill.interval} seconds, there is a ${
-        skill.probability
-      }% chance that life does not decrease for ${skill.duration} seconds.`;
+      return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that life does not decrease for ${skill.duration} seconds.`;
     case 5:
       return `Every ${skill.interval} seconds, there is a ${
         skill.probability
@@ -131,13 +127,19 @@ const getSkillDescription = skill => {
     case 10:
       return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that ${
         skill.value[1]
-      } life will be consumed so ${getEvaluationType(skill.evaluation)} note scores increase by ${
+      } life will be consumed so that ${getEvaluationType(skill.evaluation)} note scores increase by ${
+        skill.value[0]
+      }% for ${skill.duration} seconds`;
+    case 11:
+      return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that ${
+        skill.value[1]
+      } life will be consumed so that ${getEvaluationType(skill.evaluation)} combo bonuses increase by ${
         skill.value[0]
       }% for ${skill.duration} seconds`;
   }
 };
 
-const getAttributeName = attribute => {
+const getAttributeName = (attribute) => {
   switch (attribute) {
     case 1:
       return 'vocal appeal';
@@ -154,7 +156,7 @@ const getAttributeName = attribute => {
   }
 };
 
-const getLeaderSkillDescription = centerEffect => {
+const getLeaderSkillDescription = (centerEffect) => {
   let description = '';
   if (centerEffect.specificIdolType) {
     if (centerEffect.specificIdolType === 4) {
@@ -206,33 +208,33 @@ module.exports = {
     let now = new Date();
     now.setHours(now.getHours() + 9);
     return fetch(`https://api.matsurihi.me/mltd/v1/events?at=${now}?prettyPrint=false`)
-      .then(res => res.json())
-      .then(res => res[0]);
+      .then((res) => res.json())
+      .then((res) => res[0]);
   },
   async getSummaryCounts(eventId, type) {
     return fetch(`https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/summaries/${type}?prettyPrint=false`)
-      .then(res => res.json())
-      .then(res => res[res.length - 1]);
+      .then((res) => res.json())
+      .then((res) => res[res.length - 1]);
   },
   async getBorders(eventId, type, tiers) {
     return fetch(
       `https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/logs/${type}/${tiers}?prettyPrint=false`
-    ).then(res => res.json());
+    ).then((res) => res.json());
   },
   async getCardList() {
     return fetch(
       'https://api.matsurihi.me/mltd/v1/cards?rarity=ssr,sr,r&extraType=none,pst,pstr,fes&prettyPrint=false'
-    ).then(res => res.json());
+    ).then((res) => res.json());
   },
   async getIdolPoint(eventId, idolId, tiers = `1,2,3,10,100,1000`) {
     return fetch(
       `https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/logs/idolPoint/${idolId}/${tiers}?prettyPrint=false`
-    ).then(res => res.json());
+    ).then((res) => res.json());
   },
   async getCardsById(id) {
     return fetch(`https://api.matsurihi.me/mltd/v1/cards?idolId=${id}&prettyPrint=false`)
-      .then(res => res.json())
-      .then(res => res.filter(card => !isAnniSSR(card)));
+      .then((res) => res.json())
+      .then((res) => res.filter((card) => !isAnniSSR(card)));
   },
   sortCardsByRarity,
   getIdolTypeName,
@@ -241,5 +243,5 @@ module.exports = {
   getCardTitleFromName,
   getSkillDescription,
   getLeaderSkillDescription,
-  getCostumeTitleFromName
+  getCostumeTitleFromName,
 };
