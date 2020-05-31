@@ -131,11 +131,7 @@ const getSkillDescription = (skill) => {
         skill.value[0]
       }% for ${skill.duration} seconds`;
     case 11:
-      return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that ${
-        skill.value[1]
-      } life will be consumed so that ${getEvaluationType(skill.evaluation)} combo bonuses increase by ${
-        skill.value[0]
-      }% for ${skill.duration} seconds`;
+      return `Every ${skill.interval} seconds, there is a ${skill.probability}% chance that ${skill.value[1]} life will be consumed so that combo bonuses increase by ${skill.value[0]}% for ${skill.duration} seconds`;
   }
 };
 
