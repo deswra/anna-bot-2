@@ -43,9 +43,9 @@ const getExtraTypeName = (extraType) => {
     case 0:
       return 'Normal';
     case 2:
-      return 'Ranking Reward';
+      return 'Ranking';
     case 3:
-      return 'Points Reward';
+      return 'Points';
     case 4:
       return 'FES';
     case 5:
@@ -54,6 +54,39 @@ const getExtraTypeName = (extraType) => {
       return 'Extra';
     case 7:
       return '2nd Anniversary';
+    case 8:
+      return 'Extra Ranking';
+    case 9:
+      return 'Extra Points';
+    case 10:
+      return '3rd Anniversary';
+  }
+};
+
+const getCategoryName = (category) => {
+  switch (category) {
+    case 'normal':
+      return 'Initial';
+    case 'gasha0':
+      return 'Permanent';
+    case 'gasha1':
+      return 'Limited';
+    case 'gasha2':
+      return 'FES';
+    case 'event0':
+      return 'MilliColle';
+    case 'event1':
+      return 'PSTheater';
+    case 'event2':
+      return 'PSTour';
+    case 'event3':
+      return 'Anniversary';
+    case 'event4':
+      return 'Voting event SR';
+    case 'event5':
+      return 'MilliColle';
+    case 'other':
+      return 'Other';
   }
 };
 
@@ -240,4 +273,5 @@ module.exports = {
   getSkillDescription,
   getLeaderSkillDescription,
   getCostumeTitleFromName,
+  getCategoryName,
 };

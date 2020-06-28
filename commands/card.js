@@ -5,7 +5,7 @@ const princess = require('../functions/princess');
 const chars = require('../resources/chars');
 const types = require('../resources/types');
 
-const createResponseFromCardName = async cardName => {
+const createResponseFromCardName = async (cardName) => {
   const [idolName, cardNum] = cardName.split(/([0-9]*$)/);
   const idolId = getIdFromName(idolName);
   if (idolId) {
@@ -25,9 +25,13 @@ const createCardListResponse = (idolName, cards, startIndex = 1) => {
   const color = types[cards[0].idolType].color;
   let description = '';
   for (let i = startIndex - 1; i < cards.length; i++) {
+    let cardType = princess.getCategoryName(cards[i].category);
+    if (cards[i].category === 'event1' || cards[i].category === 'event2') {
+      cardType += ` ${princess.getExtraTypeName(cards[i].extraType)}`;
+    }
     description += `\`${i + 1}\` [${princess.getRarityName(cards[i].rarity)}] ${princess.getCardTitleFromName(
       cards[i].name
-    )} **${princess.getExtraTypeName(cards[i].extraType)}**\n`;
+    )} **${cardType}**\n`;
   }
   const response = new Discord.RichEmbed()
     .setColor(color)
@@ -37,33 +41,41 @@ const createCardListResponse = (idolName, cards, startIndex = 1) => {
   return response;
 };
 
-const createCardResponse = card => {
+const createCardResponse = (card) => {
   const color = types[card.idolType].color;
   const icon = types[card.idolType].icon;
   const title = princess.getCardTitleFromName(card.name);
+  let cardType = princess.getCategoryName(card.category);
+  if (card.category === 'event1' || card.category === 'event2') {
+    cardType += ` ${princess.getExtraTypeName(card.extraType)}`;
+  }
+  const masterRankMax = card.masterRankMax;
   const response = new Discord.RichEmbed()
     .setColor(color)
     .setAuthor(`[${princess.getRarityName(card.rarity)}] ${title} ${chars[card.idolId].name}`, icon)
     .setThumbnail(`https://storage.matsurihi.me/mltd/icon_l/${card.resourceId}_0.png`)
     .addField(
       'Vo/Da/Vi (Total)',
-      `${card.vocalMaxAwakened}/${card.danceMaxAwakened}/${card.visualMaxAwakened} (${card.vocalMaxAwakened +
-        card.danceMaxAwakened +
-        card.visualMaxAwakened})`,
+      `${card.vocalMaxAwakened}/${card.danceMaxAwakened}/${card.visualMaxAwakened} (${
+        card.vocalMaxAwakened + card.danceMaxAwakened + card.visualMaxAwakened
+      })`,
       true
     )
     .addField(
-      'MR4 Vo/Da/Vi (Total)',
-      `${card.vocalMaxAwakened + 4 * card.vocalMasterBonus}/${card.danceMaxAwakened +
-        4 * card.danceMasterBonus}/${card.visualMaxAwakened + 4 * card.visualMasterBonus} (${card.vocalMaxAwakened +
-        4 * card.vocalMasterBonus +
+      `MR${masterRankMax} Vo/Da/Vi (Total)`,
+      `${card.vocalMaxAwakened + masterRankMax * card.vocalMasterBonus}/${
+        card.danceMaxAwakened + masterRankMax * card.danceMasterBonus
+      }/${card.visualMaxAwakened + masterRankMax * card.visualMasterBonus} (${
+        card.vocalMaxAwakened +
+        masterRankMax * card.vocalMasterBonus +
         card.danceMaxAwakened +
-        4 * card.danceMasterBonus +
+        masterRankMax * card.danceMasterBonus +
         card.visualMaxAwakened +
-        4 * card.visualMasterBonus})`,
+        masterRankMax * card.visualMasterBonus
+      })`,
       true
     )
-    .setFooter(`ID: ${card.id}`);
+    .setFooter(`${cardType} (ID: ${card.id})`);
   if (card.skill) {
     response.addField(`Skill : ${card.skillName}`, princess.getSkillDescription(card.skill[0]));
   }
@@ -81,7 +93,7 @@ module.exports.run = async (anna, message, args) => {
   const cardName = args[0].toLowerCase();
   const responses = await createResponseFromCardName(cardName);
   if (Array.isArray(responses) && responses.length) {
-    responses.forEach(res => {
+    responses.forEach((res) => {
       message.channel.send(res);
     });
     return;
@@ -91,5 +103,5 @@ module.exports.run = async (anna, message, args) => {
 };
 
 module.exports.help = {
-  name: 'card'
+  name: 'card',
 };

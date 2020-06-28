@@ -53,7 +53,8 @@ const charNames = {
   50: ['julia'],
   51: ['tsumugi', 'shiraishi'],
   52: ['kaori', 'sakuramori'],
-  201: ['shika']
+  201: ['shika'],
+  202: ['leon'],
 };
 
 function getIdFromName(name) {
@@ -126,5 +127,5 @@ function eventDuration(a, b) {
 module.exports = {
   eventDuration,
   getIdFromName,
-  capitalizeFirstLetter
+  capitalizeFirstLetter,
 };
