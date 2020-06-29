@@ -70,10 +70,7 @@ const createCardResponse = (card, awakened, outfit, alt) => {
       card.rarity === 4
         ? `https://storage.matsurihi.me/mltd/card_bg/${card.resourceId}_${awakenedImg}.png`
         : `https://storage.matsurihi.me/mltd/card/${card.resourceId}_${awakenedImg}_b.png`;
-  const response = new Discord.RichEmbed()
-    .setColor(color)
-    .setImage(imageUrl)
-    .setFooter(`ID: ${card.id}`);
+  const response = new Discord.RichEmbed().setColor(color).setImage(imageUrl).setFooter(`ID: ${card.id}`);
   if (outfit) {
     response.setDescription(card.costume.description);
     response.setAuthor(`[${title}] ${idolName}`).setFooter(`From card ${cardTitle}`);
@@ -83,7 +80,7 @@ const createCardResponse = (card, awakened, outfit, alt) => {
   return response;
 };
 
-const createErrorResponse = error => {
+const createErrorResponse = (error) => {
   switch (error) {
     case 'WRONG_NAME':
       return "I can't find your idol, did you type her name correctly?";
@@ -110,7 +107,7 @@ module.exports.run = async (anna, message, args) => {
   }
   const responses = await createResponseFromCardName(cardName, awakened, outfit, alt);
   if (Array.isArray(responses) && responses.length) {
-    responses.forEach(res => {
+    responses.forEach((res) => {
       message.channel.send(res);
     });
     return;
@@ -120,5 +117,7 @@ module.exports.run = async (anna, message, args) => {
 };
 
 module.exports.help = {
-  name: 'image'
+  name: 'image',
 };
+
+module.exports.aliases = ['i'];

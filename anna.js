@@ -12,7 +12,7 @@ anna.commands = new Discord.Collection();
 
 fs.readdir('./commands/', (err, files) => {
   if (err) console.log(err);
-  let jsfile = files.filter(f => f.split('.').pop() == 'js');
+  let jsfile = files.filter((f) => f.split('.').pop() == 'js');
   if (jsfile.length <= 0) {
     console.log("I didn't see any commands...");
     return;
@@ -26,7 +26,7 @@ fs.readdir('./commands/', (err, files) => {
 
 anna.once('ready', async () => {
   anna.user.setActivity(process.env.game, {
-    type: process.env.activityType
+    type: process.env.activityType,
   });
   console.log('Anna is ready!');
 });
@@ -34,7 +34,7 @@ anna.once('ready', async () => {
 // Game command cooldown
 let lastPlay = 0;
 
-anna.on('message', async message => {
+anna.on('message', async (message) => {
   if (message.author.bot) return;
   if (message.channel.type == 'dm') return;
 
@@ -53,7 +53,7 @@ anna.on('message', async message => {
       lastPlay = now;
     }
   }
-  let commandFile = anna.commands.get(cmd);
+  let commandFile = anna.commands.get(cmd) || anna.commands.find((cmdd) => cmdd.aliases && cmdd.aliases.includes(cmd));
   if (commandFile) commandFile.run(anna, message, args);
 });
 

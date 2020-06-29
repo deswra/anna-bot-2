@@ -105,3 +105,5 @@ module.exports.run = async (anna, message, args) => {
 module.exports.help = {
   name: 'card',
 };
+
+module.exports.aliases = ['c'];

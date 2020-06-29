@@ -4,7 +4,7 @@ const types = require('../resources/types');
 const { capitalizeFirstLetter } = require('../functions/helpers');
 
 const isAnniSSR = (card) => {
-  if (card.extraType === 5 || card.extraType === 7) {
+  if (card.extraType === 5 || card.extraType === 7 || card.extraType === 10) {
     if (card.rarity === 4) return true;
   }
   return false;
@@ -210,6 +210,66 @@ const getLeaderSkillDescription = (centerEffect) => {
   return description;
 };
 
+const getEventBorders = async (event, borderType, tiers) => {
+  if (!event)
+    return {
+      message: 'off-event',
+    };
+  if (event.type === 1 || event.type === 2 || event.type === 6 || event.type === 7 || event.type === 9)
+    return {
+      message: 'wrong event type',
+    };
+  let response = {};
+  let timeMin = new Date();
+  timeMin.setHours(timeMin.getHours() - 1);
+  const borderDataResponse = await fetch(
+    `https://api.matsurihi.me/mltd/v1/events/${event.id}/rankings/logs/${borderType}/${tiers}?timeMin=${timeMin}&prettyPrint=false`
+  ).then((res) => res.json());
+  if (!borderDataResponse || !borderDataResponse[0].data)
+    return {
+      message: 'off-event',
+    };
+  response.updatedAt = borderDataResponse[0].data[borderDataResponse[0].data.length - 1].summaryTime;
+  let borders = [];
+  borderDataResponse.forEach((rankBorder) => {
+    let border = rankBorder.data[rankBorder.data.length - 1].score;
+    let increase = 0;
+    if (rankBorder.data.length > 1) increase = border - rankBorder.data[rankBorder.data.length - 2].score;
+    borders.push({
+      rank: rankBorder.rank,
+      score: border,
+      increase,
+    });
+  });
+  response.borders = borders;
+  response.message = 'success';
+  return response;
+};
+
+const getEventIdolBorders = async (eventId, idolId, tiers) => {
+  let response = {};
+  let timeMin = new Date();
+  timeMin.setHours(timeMin.getHours() - 2);
+  const borderDataResponse = await fetch(
+    `https://api.matsurihi.me/mltd/v1/events/${eventId}/rankings/logs/idolPoint/${idolId}/${tiers}?timeMin=${timeMin}&prettyPrint=false`
+  ).then((res) => res.json());
+  response.updatedAt = borderDataResponse[0].data[borderDataResponse[0].data.length - 1].summaryTime;
+  let borders = [];
+  borderDataResponse.forEach((rankBorder) => {
+    let border = rankBorder.data[rankBorder.data.length - 1].score;
+    let increase = 0;
+    if (rankBorder.data.length > 1) increase = border - rankBorder.data[rankBorder.data.length - 2].score;
+    borders.push({
+      rank: rankBorder.rank,
+      score: border,
+      increase,
+    });
+  });
+  response.borders = borders;
+  response.message = 'success';
+  return response;
+};
+
 module.exports = {
   async searchLounge(name) {
     const response = await fetch(`https://api.matsurihi.me/mltd/v1/lounges/search?name=${encodeURI(name)}`);
@@ -274,4 +334,6 @@ module.exports = {
   getLeaderSkillDescription,
   getCostumeTitleFromName,
   getCategoryName,
+  getEventBorders,
+  getEventIdolBorders,
 };
